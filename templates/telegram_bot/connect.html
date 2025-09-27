@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Привязка Telegram - LinguaFlow{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <div class="text-center mb-6">
+        <i class="fab fa-telegram text-5xl text-blue-500 mb-4"></i>
+        <h1 class="text-2xl font-bold text-gray-800">Привязка Telegram</h1>
+        <p class="text-gray-600">Подключите бота для уведомлений</p>
+    </div>
+
+    <div class="bg-blue-50 rounded-lg p-4 mb-6">
+        <h3 class="font-semibold text-blue-800 mb-2">Как привязать:</h3>
+        <ol class="list-decimal list-inside text-blue-700 space-y-1">
+            <li>Перейдите в нашего бота: <strong>@YourBotName</strong></li>
+            <li>Отправьте команду: <code>/connect</code></li>
+            <li>Введите код: <code class="bg-blue-200 px-2 py-1 rounded">{{ connection_code }}</code></li>
+            <li>Подтвердите привязку</li>
+        </ol>
+    </div>
+
+    <div class="text-center">
+        <a href="https://t.me/YourBotName" 
+           target="_blank"
+           class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-200 inline-flex items-center">
+            <i class="fab fa-telegram mr-2"></i>
+            Перейти к боту
+        </a>
+        
+        <a href="{% url 'dashboard' %}" 
+           class="ml-3 bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition duration-200">
+            Назад
+        </a>
+    </div>
+</div>
+{% endblock %}

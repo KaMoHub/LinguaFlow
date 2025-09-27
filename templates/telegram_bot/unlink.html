@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Отвязка Telegram - LinguaFlow{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <div class="text-center mb-6">
+        <i class="fab fa-telegram text-5xl text-red-500 mb-4"></i>
+        <h1 class="text-2xl font-bold text-gray-800">Отвязка Telegram</h1>
+        <p class="text-gray-600">Отключите бота от вашего аккаунта</p>
+    </div>
+
+    <div class="bg-red-50 rounded-lg p-4 mb-6">
+        <p class="text-red-700">
+            После отвязки вы перестанете получать уведомления о повторении слов через Telegram.
+        </p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="flex space-x-3">
+            <button type="submit" 
+                    class="flex-1 bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition duration-200">
+                Отвязать аккаунт
+            </button>
+            <a href="{% url 'dashboard' %}" 
+               class="flex-1 bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition duration-200 text-center">
+                Отмена
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
