@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои наборы - LinguaFlow{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-gray-800">Мои наборы слов</h1>
+    <a href="{% url 'deck_create' %}" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-200">
+        <i class="fas fa-plus mr-2"></i>Создать набор
+    </a>
+</div>
+
+{% if decks %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for deck in decks %}
+    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-200">
+        {% if deck.cover_image %}
+        <img src="{{ deck.cover_image.url }}" alt="{{ deck.name }}" class="w-full h-40 object-cover rounded-t-lg">
+        {% else %}
+        <div class="w-full h-40 bg-gradient-to-r from-blue-400 to-purple-500 rounded-t-lg flex items-center justify-center">
+            <i class="fas fa-language text-6xl text-white opacity-80"></i>
+        </div>
+        {% endif %}
+
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-xl font-bold text-gray-800">{{ deck.name }}</h3>
+                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
+                    {{ deck.get_language_display }}
+                </span>
+            </div>
+
+            {% if deck.description %}
+            <p class="text-gray-600 mb-4">{{ deck.description|truncatewords:10 }}</p>
+            {% endif %}
+
+            <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
+                <span>{{ deck.get_cards_count }} карточек</span>
+                <span>{{ deck.created_at|date:"d.m.Y" }}</span>
+            </div>
+
+            <div class="flex space-x-2">
+                <a href="{% url 'deck_detail' deck.id %}" class="flex-1 bg-blue-500 text-white text-center py-2 rounded hover:bg-blue-600 transition duration-200">
+                    <i class="fas fa-eye mr-1"></i>Открыть
+                </a>
+                <a href="{% url 'card_create' deck.id %}" class="flex-1 bg-green-500 text-white text-center py-2 rounded hover:bg-green-600 transition duration-200">
+                    <i class="fas fa-plus mr-1"></i>Добавить
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="bg-white rounded-lg shadow-md p-12 text-center">
+    <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+    <h2 class="text-2xl font-bold text-gray-600 mb-2">Наборов пока нет</h2>
+    <p class="text-gray-500 mb-6">Создайте свой первый набор слов для изучения</p>
+    <a href="{% url 'deck_create' %}" class="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 transition duration-200">
+        <i class="fas fa-plus mr-2"></i>Создать первый набор
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,123 @@
+linguaflow/                 # Корневая директория проекта
+├── .env                    # Переменные окружения (не в git)
+├── .gitignore
+├── requirements.txt        # Зависимости проекта
+├── manage.py
+├── README.md
+│
+├── config/                 # Главный конфигурационный пакет Django
+│   ├── __init__.py
+│   ├── settings/
+│   │   ├── __init__.py
+│   │   ├── base.py         # Базовые настройки
+│   │   ├── development.py  # Настройки для разработки
+│   │   └── production.py   # Настройки для продакшена
+│   ├── urls.py             # Главные URL-паттерны
+│   ├── asgi.py
+│   └── wsgi.py
+│
+├── apps/                   # Все приложения проекта
+│   ├── __init__.py
+│   ├── users/              # Приложение пользователей
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   ├── forms.py
+│   │   ├── managers.py     # Кастомные менеджеры моделей
+│   │   └── migrations/
+│   │       └── __init__.py
+│   │
+│   ├── decks/              # Приложение наборов слов
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   ├── forms.py
+│   │   ├── services.py     # Бизнес-логика (SRS алгоритм)
+│   │   └── migrations/
+│   │       └── __init__.py
+│   │
+│   ├── telegram/           # Приложение Telegram бота
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── bot.py          # Основной код бота
+│   │   ├── handlers.py     # Обработчики сообщений
+│   │   ├── keyboards.py    # Клавиатуры для бота
+│   │   └── migrations/
+│   │       └── __init__.py
+│   │
+│   └── core/               # Базовое приложение (общие утилиты)
+│       ├── __init__.py
+│       ├── admin.py
+│       ├── apps.py
+│       ├── models.py       # Базовые модели (AbstractBaseModel)
+│       ├── utils.py        # Общие утилиты
+│       ├── constants.py    # Константы проекта
+│       └── migrations/
+│           └── __init__.py
+│
+├── static/                 # Статические файлы
+│   ├── css/
+│   │   ├── styles.css      # Основные стили
+│   │   └── components/     # Стили компонентов
+│   ├── js/
+│   │   ├── main.js         # Основной JavaScript
+│   │   ├── srs.js          # Логика повторений на фронтенде
+│   │   └── tts.js          # Управление озвучкой
+│   ├── images/
+│   │   ├── logo.svg
+│   │   ├── icons/
+│   │   └── backgrounds/
+│   └── audio/              # Кэшированные аудио файлы (опционально)
+│
+├── templates/              # Шаблоны Django
+│   ├── base.html           # Базовый шаблон
+│   ├── includes/           # Включаемые шаблоны
+│   │   ├── header.html
+│   │   ├── footer.html
+│   │   ├── navigation.html
+│   │   └── messages.html
+│   │
+│   ├── registration/       # Шаблоны аутентификации
+│   │   ├── login.html
+│   │   ├── register.html
+│   │   └── profile.html
+│   │
+│   ├── decks/              # Шаблоны для работы с наборами
+│   │   ├── deck_list.html
+│   │   ├── deck_detail.html
+│   │   ├── deck_form.html
+│   │   └── card_form.html
+│   │
+│   ├── srs/                # Шаблоны системы повторений
+│   │   ├── review.html     # Страница повторения
+│   │   ├── review_session.html
+│   │   └── dashboard.html  # Дашборд с прогрессом
+│   │
+│   └── errors/             # Шаблоны ошибок
+│       ├── 404.html
+│       └── 500.html
+│
+├── media/                  # Медиафайлы (загружаемые пользователем)
+│   ├── deck_covers/
+│   └── user_uploads/
+│
+├── utils/                  # Общие утилиты проекта
+│   ├── __init__.py
+│   ├── text_to_speech.py   # Логика работы с TTS API
+│   ├── validators.py       # Кастомные валидаторы
+│   └── decorators.py       # Полезные декораторы
+│
+└── tests/                  # Тесты
+    ├── __init__.py
+    ├── conftest.py
+    ├── test_models/
+    ├── test_views/
+    └── test_services/

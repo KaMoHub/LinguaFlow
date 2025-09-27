@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ deck.name }} - LinguaFlow{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-800">{{ deck.name }}</h1>
+        <p class="text-gray-600">{{ deck.get_language_display }} • {{ total_cards }} карточек • {{ studied_cards }} изучено</p>
+    </div>
+    <div class="flex space-x-2">
+        <a href="{% url 'card_create' deck.id %}" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition duration-200">
+            <i class="fas fa-plus mr-2"></i>Добавить карточку
+        </a>
+        <a href="{% url 'deck_list' %}" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition duration-200">
+            <i class="fas fa-arrow-left mr-2"></i>Назад
+        </a>
+    </div>
+</div>
+
+{% if deck.description %}
+<div class="bg-blue-50 rounded-lg p-4 mb-6">
+    <p class="text-blue-800">{{ deck.description }}</p>
+</div>
+{% endif %}
+
+{% if cards %}
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Слово</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Перевод</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Пример</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Аудио</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% for card in cards %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="font-medium text-gray-900">{{ card.word_original }}</div>
+                    {% if card.transcription %}
+                    <div class="text-sm text-gray-500">[{{ card.transcription }}]</div>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4">
+                    <div class="text-gray-900">{{ card.word_translation }}</div>
+                </td>
+                <td class="px-6 py-4">
+                    {% if card.example_sentence %}
+                    <div class="text-sm text-gray-600 italic">"{{ card.example_sentence }}"</div>
+                    {% else %}
+                    <span class="text-gray-400">—</span>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4">
+    {% if card.audio_original %}
+    <div class="flex items-center space-x-2">
+        <button onclick="playAudio('{{ card.audio_original.url }}')"
+                class="text-blue-500 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50"
+                title="Прослушать слово">
+            <i class="fas fa-volume-up"></i>
+        </button>
+        {% if card.audio_translation %}
+        <button onclick="playAudio('{{ card.audio_translation.url }}')"
+                class="text-green-500 hover:text-green-600 p-2 rounded-full hover:bg-green-50"
+                title="Прослушать перевод">
+            <i class="fas fa-language"></i>
+        </button>
+        {% endif %}
+        {% if card.audio_example %}
+        <button onclick="playAudio('{{ card.audio_example.url }}')"
+                class="text-purple-500 hover:text-purple-600 p-2 rounded-full hover:bg-purple-50"
+                title="Прослушать пример">
+            <i class="fas fa-comment"></i>
+        </button>
+        {% endif %}
+    </div>
+    {% else %}
+    <span class="text-gray-400 text-sm">Аудио генерируется...</span>
+    {% endif %}
+
+    <!-- Отладочная информация -->
+    <div class="text-xs text-gray-400 mt-1">
+        {% if card.audio_original %}Есть аудио{% else %}Нет аудио{% endif %}
+    </div>
+</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="bg-white rounded-lg shadow-md p-12 text-center">
+    <i class="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
+    <h2 class="text-2xl font-bold text-gray-600 mb-2">Карточек пока нет</h2>
+    <p class="text-gray-500 mb-6">Добавьте первые слова в этот набор</p>
+    <a href="{% url 'card_create' deck.id %}" class="bg-green-500 text-white px-8 py-3 rounded-lg hover:bg-green-600 transition duration-200">
+        <i class="fas fa-plus mr-2"></i>Добавить первую карточку
+    </a>
+</div>
+{% endif %}
+
+<script>
+function playAudio(audioUrl) {
+    const audio = new Audio(audioUrl);
+    audio.play();
+}
+</script>
+{% endblock %}
+

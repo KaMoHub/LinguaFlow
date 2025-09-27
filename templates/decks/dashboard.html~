@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Дашборд - LinguaFlow{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Добро пожаловать, {{ user.username }}!</h1>
+    <p class="text-gray-600">Продолжайте изучать языки с LinguaFlow</p>
+</div>
+
+<!-- Статистика -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-500 mr-4">
+                <i class="fas fa-layer-group text-xl"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-gray-800">{{ total_decks }}</p>
+                <p class="text-gray-600">Наборов слов</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-green-100 text-green-500 mr-4">
+                <i class="fas fa-file-alt text-xl"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-gray-800">{{ total_cards }}</p>
+                <p class="text-gray-600">Всего карточек</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-yellow-100 text-yellow-500 mr-4">
+                <i class="fas fa-repeat text-xl"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-gray-800">{{ today_cards }}</p>
+                <p class="text-gray-600">На повторение</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-purple-100 text-purple-500 mr-4">
+                <i class="fas fa-star text-xl"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-gray-800">{{ new_cards }}</p>
+                <p class="text-gray-600">Новых слов</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Быстрые действия -->
+<div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Быстрые действия</h2>
+    <div class="flex flex-wrap gap-4">
+        <a href="{% url 'deck_create' %}" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-200">
+            <i class="fas fa-plus mr-2"></i>Создать набор
+        </a>
+        <a href="{% url 'deck_list' %}" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition duration-200">
+            <i class="fas fa-layer-group mr-2"></i>Мои наборы
+        </a>
+        <a href="{% url 'review' %}" class="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition duration-200">
+            <i class="fas fa-repeat mr-2"></i>Начать повторение
+        </a>
+    </div>
+</div>
+{% endblock %}
+

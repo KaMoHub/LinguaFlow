@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактирование карточки - {{ card.word_original }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>Редактирование карточки</h4>
+                <small class="text-muted">Колода: {{ card.deck.title }}</small>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.word_original.id_for_label }}" class="form-label">
+                                    Слово (оригинал) *
+                                </label>
+                                {{ form.word_original }}
+                                {% if form.word_original.errors %}
+                                    <div class="text-danger">{{ form.word_original.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.word_translation.id_for_label }}" class="form-label">
+                                    Перевод *
+                                </label>
+                                {{ form.word_translation }}
+                                {% if form.word_translation.errors %}
+                                    <div class="text-danger">{{ form.word_translation.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.example_original.id_for_label }}" class="form-label">
+                            Пример использования (оригинал)
+                        </label>
+                        {{ form.example_original }}
+                        <div class="form-text">Необязательное поле</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.example_translation.id_for_label }}" class="form-label">
+                            Перевод примера
+                        </label>
+                        {{ form.example_translation }}
+                        <div class="form-text">Необязательное поле</div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <small>
+                            ⓘ После сохранения изменений аудио файлы будут автоматически перегенерированы.
+                        </small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                        <a href="{% url 'card_detail' card.id %}" class="btn btn-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        width: 100%;
+    }
+    textarea.form-control {
+        min-height: 80px;
+    }
+</style>
+{% endblock %}

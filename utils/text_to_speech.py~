@@ -1,0 +1,71 @@
+import os
+import requests
+from gtts import gTTS
+from django.conf import settings
+from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
+import os
+from gtts import gTTS
+from django.conf import settings
+from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def generate_audio_for_card(card):
+    """
+    Генерирует аудио файлы для карточки и возвращает обновленную карточку
+    """
+    try:
+        # Создаем папки для аудио если их нет
+        audio_dirs = ['audio/original', 'audio/translation', 'audio/example']
+        for dir_name in audio_dirs:
+            dir_path = Path(settings.MEDIA_ROOT) / dir_name
+            dir_path.mkdir(parents=True, exist_ok=True)
+
+        # Генерируем аудио для оригинального слова
+        if card.word_original and not card.audio_original:
+            audio_filename = f'card_{card.id}_original.mp3'
+            audio_path = Path(settings.MEDIA_ROOT) / 'audio' / 'original' / audio_filename
+
+            tts = gTTS(text=card.word_original, lang=card.deck.language)
+            tts.save(audio_path)
+
+            # ПРАВИЛЬНО: присваиваем через .name
+            card.audio_original.name = f'audio/original/{audio_filename}'
+            logger.info(f"Аудио для слова создано: {card.audio_original.name}")
+
+        # Генерируем аудио для перевода
+        if card.word_translation and not card.audio_translation:
+            audio_filename = f'card_{card.id}_translation.mp3'
+            audio_path = Path(settings.MEDIA_ROOT) / 'audio' / 'translation' / audio_filename
+
+            tts = gTTS(text=card.word_translation, lang='ru')
+            tts.save(audio_path)
+
+            card.audio_translation.name = f'audio/translation/{audio_filename}'
+            logger.info(f"Аудио для перевода создано: {card.audio_translation.name}")
+
+        # Генерируем аудио для примера
+        if card.example_sentence and not card.audio_example:
+            audio_filename = f'card_{card.id}_example.mp3'
+            audio_path = Path(settings.MEDIA_ROOT) / 'audio' / 'example' / audio_filename
+
+            tts = gTTS(text=card.example_sentence, lang=card.deck.language)
+            tts.save(audio_path)
+
+            card.audio_example.name = f'audio/example/{audio_filename}'
+            logger.info(f"Аудио для примера создано: {card.audio_example.name}")
+
+        return card
+
+    except Exception as e:
+        logger.error(f"Ошибка генерации аудио для карточки {card.id}: {str(e)}")
+        return card
+
+# УДАЛЯЕМ старые функции чтобы не было путаницы
+# def generate_audio(card_id):
+# def generate_audio_sync(card):

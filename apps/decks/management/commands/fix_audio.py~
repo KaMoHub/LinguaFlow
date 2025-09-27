@@ -1,0 +1,53 @@
+from django.core.management.base import BaseCommand
+from apps.decks.models import Card
+from utils.text_to_speech import generate_audio_for_card
+import logging
+from pathlib import Path
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
+
+
+class Command(BaseCommand):
+    help = 'Исправляет привязку аудио файлов для существующих карточек'
+
+    def handle(self, *args, **options):
+        # Карточки где аудио файлы есть на диске, но не привязаны в БД
+        cards_to_fix = Card.objects.filter(
+            word_original__isnull=False
+        ).exclude(word_original='')
+
+        self.stdout.write(f'Найдено {cards_to_fix.count()} карточек для проверки')
+
+        fixed_count = 0
+        for card in cards_to_fix:
+            # Проверяем есть ли файлы на диске
+            original_path = None
+            if card.audio_original:
+                original_path = card.audio_original.path if card.audio_original else None
+
+            # Если в БД нет аудио, но файл существует на диске
+            if not card.audio_original:
+                expected_path = f'audio/original/card_{card.id}_original.mp3'
+                full_path = Path(settings.MEDIA_ROOT) / expected_path
+
+                if full_path.exists():
+                    # Привязываем существующий файл
+                    card.audio_original.name = expected_path
+                    card.save()
+                    self.stdout.write(f'✓ Исправлена карточка {card.id}: {card.word_original}')
+                    fixed_count += 1
+                else:
+                    # Генерируем аудио заново
+                    card_with_audio = generate_audio_for_card(card)
+                    if card_with_audio.audio_original:
+                        card.audio_original = card_with_audio.audio_original
+                        card.audio_translation = card_with_audio.audio_translation
+                        card.audio_example = card_with_audio.audio_example
+                        card.save()
+                        self.stdout.write(f'✓ Перегенерировано для карточки {card.id}: {card.word_original}')
+                        fixed_count += 1
+                    else:
+                        self.stdout.write(f'✗ Ошибка для карточки {card.id}')
+
+        self.stdout.write(f'Исправлено карточек: {fixed_count}')

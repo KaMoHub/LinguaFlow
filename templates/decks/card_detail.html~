@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Карточка: {{ card.word_original }} - {{ card.word_translation }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Карточка слова</h4>
+                <span class="badge bg-primary">{{ card.deck.title }}</span>
+            </div>
+            <div class="card-body">
+                <!-- Основная информация -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Оригинал</h5>
+                        <p class="fs-4">{{ card.word_original }}</p>
+                        {% if card.audio_original %}
+                            <audio controls class="w-100">
+                                <source src="{{ card.audio_original.url }}" type="audio/mpeg">
+                                Ваш браузер не поддерживает аудио элемент.
+                            </audio>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Перевод</h5>
+                        <p class="fs-4">{{ card.word_translation }}</p>
+                        {% if card.audio_translation %}
+                            <audio controls class="w-100">
+                                <source src="{{ card.audio_translation.url }}" type="audio/mpeg">
+                                Ваш браузер не поддерживает аудио элемент.
+                            </audio>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Пример использования -->
+                {% if card.example_original %}
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6>Пример (оригинал):</h6>
+                        <p class="fst-italic">{{ card.example_original }}</p>
+                        {% if card.audio_example %}
+                            <audio controls class="w-100">
+                                <source src="{{ card.audio_example.url }}" type="audio/mpeg">
+                                Ваш браузер не поддерживает аудио элемент.
+                            </audio>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Пример (перевод):</h6>
+                        <p>{{ card.example_translation }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Дополнительная информация -->
+                <div class="row">
+                    <div class="col-12">
+                        <small class="text-muted">
+                            Создано: {{ card.created_at|date:"d.m.Y H:i" }}
+                            {% if card.updated_at != card.created_at %}
+                                | Обновлено: {{ card.updated_at|date:"d.m.Y H:i" }}
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Кнопки действий -->
+            <div class="card-footer">
+                <div class="btn-group w-100">
+                    <a href="{% url 'card_edit' card.id %}" class="btn btn-outline-primary">
+                        ✏️ Редактировать
+                    </a>
+                    <a href="{% url 'card_delete' card.id %}" class="btn btn-outline-danger">
+                        🗑️ Удалить
+                    </a>
+                    <a href="{% url 'deck_detail' card.deck.id %}" class="btn btn-outline-secondary">
+                        ← Назад к колоде
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

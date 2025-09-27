@@ -1,0 +1,209 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.http import JsonResponse
+from .models import Deck, Card, UserWordProgress
+from .forms import DeckForm, CardForm, CardEditForm
+from django.utils import timezone
+from .forms import DeckForm, CardForm
+
+@login_required
+def dashboard(request):
+    """Главная страница с дашбордом"""
+    user = request.user
+
+    # Статистика для дашборда
+    total_decks = Deck.objects.filter(user=user).count()
+    total_cards = Card.objects.filter(deck__user=user).count()
+
+    # Карточки на повторение сегодня
+    today_cards = UserWordProgress.objects.filter(
+        user=user,
+        next_review_date__date__lte=timezone.now().date()
+    ).count()
+
+    # Новые карточки для изучения
+    new_cards = Card.objects.filter(
+        deck__user=user
+    ).exclude(
+        progress__user=user
+    )[:user.daily_new_cards_limit].count()
+
+    context = {
+        'user': user,
+        'total_decks': total_decks,
+        'total_cards': total_cards,
+        'today_cards': today_cards,
+        'new_cards': new_cards,
+    }
+    return render(request, 'decks/dashboard.html', context)
+
+
+@login_required
+def deck_list(request):
+    """Список всех наборов пользователя"""
+    decks = Deck.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'decks/deck_list.html', {'decks': decks})
+
+
+@login_required
+def deck_detail(request, deck_id):
+    """Детальная страница набора с карточками"""
+    deck = get_object_or_404(Deck, id=deck_id, user=request.user)
+    cards = deck.cards.all().order_by('created_at')
+
+    # Статистика по набору
+    total_cards = cards.count()
+    studied_cards = UserWordProgress.objects.filter(
+        user=request.user,
+        card__deck=deck,
+        status__in=['learning', 'review', 'mastered']
+    ).count()
+
+    context = {
+        'deck': deck,
+        'cards': cards,
+        'total_cards': total_cards,
+        'studied_cards': studied_cards,
+    }
+    return render(request, 'decks/deck_detail.html', context)
+
+
+@login_required
+def deck_create(request):
+    """Создание нового набора"""
+    if request.method == 'POST':
+        form = DeckForm(request.POST, request.FILES)
+        if form.is_valid():
+            deck = form.save(commit=False)
+            deck.user = request.user
+            deck.save()
+            messages.success(request, f'Набор "{deck.name}" успешно создан!')
+            return redirect('deck_detail', deck_id=deck.id)
+    else:
+        form = DeckForm()
+
+    return render(request, 'decks/deck_form.html', {'form': form, 'title': 'Создать набор'})
+
+
+@login_required
+def card_create(request, deck_id):
+    """Добавление карточки в набор"""
+    deck = get_object_or_404(Deck, id=deck_id, user=request.user)
+
+    if request.method == 'POST':
+        form = CardForm(request.POST)
+        if form.is_valid():
+            card = form.save(commit=False)
+            card.deck = deck
+            card.save()
+            messages.success(request, f'Карточка "{card.word_original}" добавлена!')
+            return redirect('deck_detail', deck_id=deck.id)
+    else:
+        form = CardForm()
+
+    return render(request, 'decks/card_form.html', {'form': form, 'deck': deck})
+
+
+@login_required
+def review(request):
+    """Страница повторения карточек с SRS алгоритмом"""
+    from .services import get_today_review_cards, get_new_cards_for_user, create_user_progress_for_card
+
+    user = request.user
+    session_type = request.GET.get('type', 'review')  # review или new
+
+    if request.method == 'POST':
+        # Обработка ответа пользователя
+        card_id = request.POST.get('card_id')
+        quality = int(request.POST.get('quality', 0))
+
+        card = get_object_or_404(Card, id=card_id, deck__user=user)
+
+        # Получаем или создаем прогресс
+        progress, created = UserWordProgress.objects.get_or_create(
+            user=user,
+            card=card,
+            defaults={
+                'status': 'learning',
+                'next_review_date': timezone.now()
+            }
+        )
+
+        # Обновляем прогресс на основе качества ответа
+        progress.update_progress(quality)
+
+        messages.success(request, 'Прогресс обновлен!')
+        return redirect('review')  # Перезагружаем для следующей карточки
+
+    # Получаем карточки для текущей сессии
+    if session_type == 'review':
+        # Карточки на повторение
+        progress_items = get_today_review_cards(user)
+        if progress_items:
+            current_progress = progress_items[0]
+            current_card = current_progress.card
+            is_new = False
+        else:
+            current_card = None
+    else:
+        # Новые карточки
+        new_cards = get_new_cards_for_user(user, limit=user.daily_new_cards_limit)
+        if new_cards:
+            current_card = new_cards[0]
+            # Создаем прогресс для новой карточки
+            create_user_progress_for_card(user, current_card)
+            is_new = True
+        else:
+            current_card = None
+
+    # Статистика для отображения
+    review_count = get_today_review_cards(user).count()
+    new_count = get_new_cards_for_user(user, limit=user.daily_new_cards_limit).count()
+
+    context = {
+        'current_card': current_card,
+        'session_type': session_type,
+        'review_count': review_count,
+        'new_count': new_count,
+        'is_new': is_new if current_card else False,
+    }
+
+    return render(request, 'decks/review.html', context)
+
+@login_required
+def card_edit(request, card_id):
+    card = get_object_or_404(Card, id=card_id, deck__user=request.user)  # Добавим проверку владельца
+
+    if request.method == 'POST':
+        form = CardEditForm(request.POST, instance=card)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Карточка успешно обновлена')
+            return redirect('card_detail', card_id=card.id)
+    else:
+        form = CardEditForm(instance=card)
+
+    return render(request, 'decks/card_edit.html', {
+        'form': form,
+        'card': card
+    })
+
+@login_required
+def card_delete(request, card_id):
+    card = get_object_or_404(Card, id=card_id, deck__user=request.user)  # Добавим проверку владельца
+    deck_id = card.deck.id
+
+    if request.method == 'POST':
+        card.delete()
+        messages.success(request, 'Карточка успешно удалена')
+        return redirect('deck_detail', deck_id=deck_id)
+
+    return render(request, 'decks/card_confirm_delete.html', {
+        'card': card
+    })
+
+@login_required
+def card_detail(request, card_id):
+    card = get_object_or_404(Card, id=card_id, deck__user=request.user)  # Добавим проверку владельца
+    return render(request, 'decks/card_detail.html', {'card': card})

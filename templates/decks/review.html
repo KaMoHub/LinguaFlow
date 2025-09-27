@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Повторение - LinguaFlow{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Статистика сессии -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-blue-50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-blue-600">{{ review_count }}</div>
+            <div class="text-blue-800">На повторение</div>
+        </div>
+        <div class="bg-green-50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-green-600">{{ new_count }}</div>
+            <div class="text-green-800">Новых слов</div>
+        </div>
+    </div>
+
+    <!-- Отладочная информация -->
+    <div class="bg-gray-100 rounded-lg p-3 mb-4 text-sm text-gray-600">
+        <div>Тип сессии: <strong>{{ session_type }}</strong></div>
+        <div>Карточка: {% if current_card %}{{ current_card.word_original }}{% else %}нет{% endif %}</div>
+    </div>
+
+    {% if current_card %}
+    <!-- Карточка для изучения -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <!-- Заголовок с типом карточки -->
+        <div class="flex justify-between items-center mb-4">
+            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold">
+                {% if is_new %}Новое слово{% else %}Повторение{% endif %}
+            </span>
+            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">
+                {{ current_card.deck.name }}
+            </span>
+        </div>
+
+        <!-- Слово (изначально скрыт перевод) -->
+        <div class="text-center mb-6">
+            <div class="mb-4">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">{{ current_card.word_original }}</h2>
+                {% if current_card.transcription %}
+                <p class="text-gray-600 text-lg">[{{ current_card.transcription }}]</p>
+                {% endif %}
+            </div>
+
+            <!-- Аудио -->
+            {% if current_card.audio_original %}
+            <div class="mb-4">
+                <audio controls class="mx-auto">
+                    <source src="{{ current_card.audio_original.url }}" type="audio/mpeg">
+                </audio>
+            </div>
+            {% endif %}
+
+            <!-- Пример (если есть) -->
+            {% if current_card.example_sentence %}
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <p class="text-gray-700 italic">"{{ current_card.example_sentence }}"</p>
+            </div>
+            {% endif %}
+
+            <!-- Переводчик (изначально скрыт) -->
+            <div id="translation" class="hidden">
+                <div class="bg-green-50 rounded-lg p-4 border-2 border-green-200">
+                    <h3 class="text-xl font-semibold text-green-800 mb-2">Перевод</h3>
+                    <p class="text-2xl font-bold text-gray-800">{{ current_card.word_translation }}</p>
+
+                    {% if current_card.audio_translation %}
+                    <div class="mt-3">
+                        <audio controls class="mx-auto">
+                            <source src="{{ current_card.audio_translation.url }}" type="audio/mpeg">
+                        </audio>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div id="showAnswerSection" class="text-center">
+            <button onclick="showTranslation()"
+                    class="bg-blue-500 text-white px-8 py-3 rounded-lg hover:bg-blue-600 transition duration-200 text-lg font-semibold">
+                <i class="fas fa-eye mr-2"></i>Показать ответ
+            </button>
+        </div>
+
+        <!-- Кнопки оценки (изначально скрыты) -->
+        <div id="ratingSection" class="hidden text-center space-y-3">
+            <p class="text-gray-600 mb-4">Насколько хорошо вы вспомнили перевод?</p>
+
+            <form method="post" class="space-y-3">
+                {% csrf_token %}
+                <input type="hidden" name="card_id" value="{{ current_card.id }}">
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button type="submit" name="quality" value="1"
+                            class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition duration-200 font-semibold">
+                        <i class="fas fa-times mr-2"></i>Сложно
+                    </button>
+
+                    <button type="submit" name="quality" value="3"
+                            class="bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition duration-200 font-semibold">
+                        <i class="fas fa-check mr-2"></i>Нормально
+                    </button>
+
+                    <button type="submit" name="quality" value="5"
+                            class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition duration-200 font-semibold">
+                        <i class="fas fa-star mr-2"></i>Легко
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Навигация между режимами -->
+    <div class="bg-white rounded-lg shadow-md p-4">
+        <div class="flex space-x-3">
+            <a href="{% url 'review' %}?type=review"
+               class="flex-1 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition duration-200 text-center {% if session_type == 'review' %}bg-purple-600{% endif %}">
+                Повторение ({{ review_count }})
+            </a>
+            <a href="{% url 'review' %}?type=new"
+               class="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200 text-center {% if session_type == 'new' %}bg-green-600{% endif %}">
+                Новые слова ({{ new_count }})
+            </a>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Нет карточек для изучения -->
+    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+        <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">
+            {% if review_count == 0 and new_count == 0 %}
+            Все карточки изучены!
+            {% elif session_type == 'review' and review_count == 0 %}
+            Нет карточек для повторения
+            {% elif session_type == 'new' and new_count == 0 %}
+            Нет новых карточек
+            {% endif %}
+        </h1>
+
+        <p class="text-gray-600 mb-4">
+            {% if session_type == 'review' and new_count > 0 %}
+            Попробуйте переключиться на изучение новых слов.
+            {% elif session_type == 'new' and review_count > 0 %}
+            Есть карточки для повторения.
+            {% endif %}
+        </p>
+
+        <div class="space-y-3">
+            {% if new_count > 0 %}
+            <a href="{% url 'review' %}?type=new" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition duration-200 inline-block">
+                Изучать новые слова ({{ new_count }})
+            </a>
+            {% endif %}
+
+            {% if review_count > 0 %}
+            <a href="{% url 'review' %}?type=review" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-200 inline-block">
+                Повторять слова ({{ review_count }})
+            </a>
+            {% endif %}
+
+            <a href="{% url 'dashboard' %}" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition duration-200 inline-block">
+                На дашборд
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function showTranslation() {
+    document.getElementById('translation').classList.remove('hidden');
+    document.getElementById('showAnswerSection').classList.add('hidden');
+    document.getElementById('ratingSection').classList.remove('hidden');
+
+    // Автовоспроизведение аудио перевода
+    const translationAudio = document.querySelector('#translation audio');
+    if (translationAudio) {
+        translationAudio.play();
+    }
+}
+
+// Автовоспроизведение оригинального аудио при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    const originalAudio = document.querySelector('audio');
+    if (originalAudio) {
+        originalAudio.play();
+    }
+});
+</script>
+{% endblock %}

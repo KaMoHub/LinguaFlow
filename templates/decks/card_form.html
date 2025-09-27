@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить карточку - LinguaFlow{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Добавить карточку</h1>
+        <p class="text-gray-600">Набор: <strong>{{ deck.name }}</strong></p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            Пожалуйста, исправьте ошибки ниже.
+        </div>
+        {% endif %}
+
+        <div class="space-y-4">
+            <div>
+                <label for="id_word_original" class="block text-gray-700 text-sm font-bold mb-2">Слово на иностранном языке</label>
+                {{ form.word_original }}
+                {% if form.word_original.errors %}
+                <div class="text-red-500 text-xs mt-1">{{ form.word_original.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="id_word_translation" class="block text-gray-700 text-sm font-bold mb-2">Перевод</label>
+                {{ form.word_translation }}
+                {% if form.word_translation.errors %}
+                <div class="text-red-500 text-xs mt-1">{{ form.word_translation.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="id_transcription" class="block text-gray-700 text-sm font-bold mb-2">Транскрипция</label>
+                {{ form.transcription }}
+                <p class="text-gray-500 text-xs mt-1">Необязательно</p>
+            </div>
+
+            <div>
+                <label for="id_example_sentence" class="block text-gray-700 text-sm font-bold mb-2">Пример использования</label>
+                {{ form.example_sentence }}
+                <p class="text-gray-500 text-xs mt-1">Необязательно</p>
+            </div>
+
+            <div>
+                <label for="id_image_url" class="block text-gray-700 text-sm font-bold mb-2">Ссылка на изображение</label>
+                {{ form.image_url }}
+                <p class="text-gray-500 text-xs mt-1">Необязательно</p>
+            </div>
+        </div>
+
+        <div class="mt-6 flex space-x-4">
+            <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition duration-200">
+                <i class="fas fa-plus mr-2"></i>Добавить карточку
+            </button>
+            <a href="{% url 'deck_detail' deck.id %}" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition duration-200">
+                <i class="fas fa-times mr-2"></i>Отмена
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

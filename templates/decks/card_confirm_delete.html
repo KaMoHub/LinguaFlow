@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Удаление карточки - {{ card.word_original }}{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="bg-red-500 text-white px-6 py-4">
+            <h2 class="text-xl font-bold">🗑️ Удаление карточки</h2>
+        </div>
+
+        <div class="p-6">
+            <div class="bg-yellow-100 border border-yellow-400 rounded-lg p-4 mb-4">
+                <h3 class="font-bold text-yellow-800">Вы уверены, что хотите удалить эту карточку?</h3>
+            </div>
+
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <div class="space-y-2">
+                    <p><strong>Слово:</strong> {{ card.word_original }}</p>
+                    <p><strong>Перевод:</strong> {{ card.word_translation }}</p>
+                    <p><strong>Колода:</strong> {{ card.deck.title }}</p>
+                    <p class="text-gray-500 text-sm">Создано: {{ card.created_at|date:"d.m.Y H:i" }}</p>
+                </div>
+            </div>
+
+            <div class="bg-red-100 border border-red-200 rounded-lg p-3 mb-4">
+                <p class="text-red-700 text-sm">
+                    <strong>Внимание!</strong> Это действие нельзя будет отменить.
+                    Будут удалены все связанные аудио файлы.
+                </p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="flex space-x-3">
+                    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200 flex-1">
+                        Да, удалить
+                    </button>
+                    <a href="{% url 'card_detail' card.id %}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-200 flex-1 text-center">
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

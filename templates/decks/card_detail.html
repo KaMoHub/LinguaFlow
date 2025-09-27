@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Карточка: {{ card.word_original }} - {{ card.word_translation }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <!-- Заголовок -->
+        <div class="bg-gradient-primary text-white px-6 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold">Карточка слова</h1>
+                <span class="bg-white text-blue-600 px-3 py-1 rounded-full text-sm font-semibold">
+                    {{ card.deck.name }}
+                </span>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <!-- Основная информация -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Оригинал -->
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold text-blue-800 mb-2">Оригинал</h3>
+                    <p class="text-2xl font-bold text-gray-800 mb-2">{{ card.word_original }}</p>
+                    {% if card.transcription %}
+                    <p class="text-gray-600 text-sm">[{{ card.transcription }}]</p>
+                    {% endif %}
+                    {% if card.audio_original %}
+                    <div class="mt-3">
+                        <audio controls class="w-full">
+                            <source src="{{ card.audio_original.url }}" type="audio/mpeg">
+                            Ваш браузер не поддерживает аудио элемент.
+                        </audio>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Перевод -->
+                <div class="bg-green-50 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold text-green-800 mb-2">Перевод</h3>
+                    <p class="text-2xl font-bold text-gray-800 mb-2">{{ card.word_translation }}</p>
+                    {% if card.audio_translation %}
+                    <div class="mt-3">
+                        <audio controls class="w-full">
+                            <source src="{{ card.audio_translation.url }}" type="audio/mpeg">
+                            Ваш браузер не поддерживает аудио элемент.
+                        </audio>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Пример использования -->
+            {% if card.example_sentence %}
+            <div class="bg-purple-50 rounded-lg p-4 mb-6">
+                <h3 class="text-lg font-semibold text-purple-800 mb-2">Пример использования</h3>
+                <p class="text-lg italic text-gray-700 mb-3">"{{ card.example_sentence }}"</p>
+                {% if card.audio_example %}
+                <div class="mt-2">
+                    <audio controls class="w-full">
+                        <source src="{{ card.audio_example.url }}" type="audio/mpeg">
+                        Ваш браузер не поддерживает аудио элемент.
+                    </audio>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Дополнительная информация -->
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex justify-between items-center text-sm text-gray-600">
+                    <span>Создано: {{ card.created_at|date:"d.m.Y H:i" }}</span>
+                    {% if card.updated_at != card.created_at %}
+                    <span>Обновлено: {{ card.updated_at|date:"d.m.Y H:i" }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="bg-gray-100 px-6 py-4">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <a href="{% url 'card_edit' card.id %}"
+                   class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition duration-200 text-center">
+                    <i class="fas fa-edit mr-2"></i>Редактировать
+                </a>
+                <a href="{% url 'card_delete' card.id %}"
+                   class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200 text-center">
+                    <i class="fas fa-trash mr-2"></i>Удалить
+                </a>
+                <a href="{% url 'deck_detail' card.deck.id %}"
+                   class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-200 text-center">
+                    <i class="fas fa-arrow-left mr-2"></i>Назад к колоде
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

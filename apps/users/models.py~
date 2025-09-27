@@ -1,0 +1,59 @@
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django.utils import timezone
+from .managers import CustomUserManager  # Добавляем импорт
+
+
+class User(AbstractUser):
+    """Расширенная модель пользователя"""
+    DAILY_LIMIT_CHOICES = [
+        (5, '5 слов'),
+        (10, '10 слов'),
+        (15, '15 слов'),
+        (20, '20 слов'),
+        (25, '25 слов'),
+    ]
+
+    email = models.EmailField(unique=True)
+    daily_new_cards_limit = models.IntegerField(choices=DAILY_LIMIT_CHOICES, default=10)
+    current_streak = models.IntegerField(default=0)
+    last_study_date = models.DateField(null=True, blank=True)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+
+    # Указываем related_name для избежания конфликтов
+    groups = models.ManyToManyField(
+        'auth.Group',
+        verbose_name='groups',
+        blank=True,
+        help_text='The groups this user belongs to.',
+        related_name='custom_user_set',  # Уникальное имя
+        related_query_name='user',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        verbose_name='user permissions',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        related_name='custom_user_set',  # Уникальное имя
+        related_query_name='user',
+    )
+
+    def update_streak(self):
+        """Обновление серии дней изучения"""
+        today = timezone.now().date()
+        if self.last_study_date:
+            days_diff = (today - self.last_study_date).days
+            if days_diff == 1:
+                self.current_streak += 1
+            elif days_diff > 1:
+                self.current_streak = 1
+        else:
+            self.current_streak = 1
+
+        self.last_study_date = today
+        self.save()
+
+    def __str__(self):
+        return self.username
+
+

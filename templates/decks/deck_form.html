@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - LinguaFlow{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">{{ title }}</h1>
+        <p class="text-gray-600">Заполните информацию о наборе слов</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            Пожалуйста, исправьте ошибки ниже.
+        </div>
+        {% endif %}
+
+        <div class="space-y-4">
+            <div>
+                <label for="id_name" class="block text-gray-700 text-sm font-bold mb-2">Название набора</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <div class="text-red-500 text-xs mt-1">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="id_description" class="block text-gray-700 text-sm font-bold mb-2">Описание</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <div class="text-red-500 text-xs mt-1">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="id_language" class="block text-gray-700 text-sm font-bold mb-2">Язык</label>
+                {{ form.language }}
+                {% if form.language.errors %}
+                <div class="text-red-500 text-xs mt-1">{{ form.language.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="id_cover_image" class="block text-gray-700 text-sm font-bold mb-2">Обложка</label>
+                {{ form.cover_image }}
+                {% if form.cover_image.errors %}
+                <div class="text-red-500 text-xs mt-1">{{ form.cover_image.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center">
+                {{ form.is_public }}
+                <label for="id_is_public" class="ml-2 text-gray-700 text-sm">Сделать набор публичным</label>
+            </div>
+        </div>
+
+        <div class="mt-6 flex space-x-4">
+            <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-200">
+                <i class="fas fa-save mr-2"></i>Сохранить
+            </button>
+            <a href="{% url 'deck_list' %}" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition duration-200">
+                <i class="fas fa-times mr-2"></i>Отмена
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

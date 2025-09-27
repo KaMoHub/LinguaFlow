@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LinguaFlow - Изучение языков{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Иконки -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Кастомные стилы -->
+    <style>
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    {% include 'includes/header.html' %}
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Сообщения -->
+        {% if messages %}
+            {% include 'includes/messages.html' %}
+        {% endif %}
+
+        <!-- Контент страницы -->
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% include 'includes/footer.html' %}
+
+    <!-- JavaScript -->
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>
