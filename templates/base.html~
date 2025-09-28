@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru" class="bg-white dark:bg-gray-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LinguaFlow - Изучение языков{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script>
+        // Включаем поддержку темной темы в Tailwind
+        tailwind.config = {
+            darkMode: 'class', // или 'media' для автоматического определения по системным настройкам
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Иконки -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Кастомные стили -->
+    <style>
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        /* Дополнительные стили для темной темы, если нужно */
+        .dark .bg-gray-50 {
+            background-color: #1a202c; /* например */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+    <!-- Header -->
+    {% include 'includes/header.html' %}
+
+    <!-- Кнопка переключения темы (пример размещения) -->
+    <button id="theme-toggle" class="fixed top-4 right-4 p-2 rounded-full bg-gray-100 dark:bg-gray-500 text-gray-800 dark:text-gray-200 z-50">
+        <i class="fas fa-moon dark:hidden"></i> <!-- Иконка луны (для светлой темы) -->
+        <i class="fas fa-sun hidden dark:block"></i> <!-- Иконка солнца (для темной темы) -->
+    </button>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Сообщения -->
+        {% if messages %}
+            {% include 'includes/messages.html' %}
+        {% endif %}
+
+        <!-- Контент страницы -->
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% include 'includes/footer.html' %}
+
+    <!-- JavaScript -->
+    <script>
+        // Элемент кнопки переключения
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        // Проверяем сохранённую тему в localStorage
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else if (savedTheme === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            // Если тема не сохранена, можно определить по системным настройкам
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Обработчик клика по кнопке
+        themeToggleBtn.addEventListener('click', function() {
+            // Переключаем класс 'dark' на элементе <html>
+            document.documentElement.classList.toggle('dark');
+
+            // Сохраняем текущую тему в localStorage
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Опционально: слушаем изменения системной темы (только если darkMode: 'media')
+        // window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        //     if (e.matches && !localStorage.getItem('theme')) {
+        //         document.documentElement.classList.add('dark');
+        //     } else if (!e.matches && !localStorage.getItem('theme')) {
+        //         document.documentElement.classList.remove('dark');
+        //     }
+        // });
+    </script>
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

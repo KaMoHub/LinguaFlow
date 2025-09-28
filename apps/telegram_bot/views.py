@@ -1,90 +1,37 @@
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.conf import settings
-import logging  # ДОБАВИТЬ ЭТО
 import json
-from .services import TelegramBot, MessageHandler, logger
-from .models import TelegramUser
+import logging
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.conf import settings
+from .services import handle_telegram_update # Импортируем функцию из services.py
 
-logger = logging.getLogger(__name__)  # ДОБАВИТЬ ЭТО
+logger = logging.getLogger(__name__)
 
-@csrf_exempt
-@require_http_methods(["POST"])
-def webhook(request):
-    """Webhook для получения сообщений от Telegram"""
+@csrf_exempt # Вебхук от Telegram будет POST-запросом без CSRF токена
+@require_POST # Разрешаем только POST-запросы
+def telegram_webhook(request):
+    """
+    Обрабатывает POST-запросы от Telegram.
+    """
     try:
-        # Парсим JSON данные
-        data = json.loads(request.body)
-        logger.info(f"Received webhook data: {data}")
+        # Получаем JSON-данные из тела запроса
+        update_data = json.loads(request.body.decode('utf-8'))
+        logger.info(f"Получено обновление от Telegram: {update_data}")
 
-        # Обрабатываем сообщение
-        handler = MessageHandler()
+        # Передаём данные в основную логику обработки
+        handle_telegram_update(update_data)
 
-        if 'message' in data:
-            handler.handle_message(data['message'])
-        elif 'callback_query' in data:
-            # Обработка callback от кнопок
-            handler.handle_callback(data['callback_query'])
+        # Возвращаем пустой ответ с кодом 200 OK
+        # Telegram интерпретирует 200 как успешно обработанный запрос
+        # и не будет отправлять его повторно.
+        return HttpResponse(status=200)
 
-        return JsonResponse({'status': 'ok'})
+    except json.JSONDecodeError:
+        logger.error("Ошибка декодирования JSON из запроса от Telegram.")
+        return HttpResponse(status=400) # Bad Request
     except Exception as e:
-        logger.error(f"Webhook error: {e}")
-        return JsonResponse({'status': 'error'}, status=400)
+        logger.error(f"Ошибка при обработке вебхука: {e}")
+        return HttpResponse(status=500) # Internal Server Error
 
-
-@login_required
-def connect_telegram(request):
-    """Страница для привязки Telegram аккаунта"""
-    if request.method == 'POST':
-        connection_code = request.POST.get('connection_code')
-
-        # Здесь должна быть логика проверки кода
-        # Временная реализация - просто создаем связь
-        telegram_id = request.POST.get('telegram_id')
-
-        if telegram_id:
-            # Создаем или обновляем связь
-            TelegramUser.objects.update_or_create(
-                user=request.user,
-                defaults={
-                    'telegram_id': telegram_id,
-                    'username': request.POST.get('username', ''),
-                    'first_name': request.POST.get('first_name', ''),
-                    'last_name': request.POST.get('last_name', ''),
-                }
-            )
-            messages.success(request, 'Telegram аккаунт успешно привязан!')
-            return redirect('dashboard')
-        else:
-            messages.error(request, 'Не удалось привязать аккаунт')
-
-    # Генерируем уникальный код для привязки
-    import secrets
-    connection_code = secrets.token_hex(8)
-
-    return render(request, 'telegram_bot/connect.html', {
-        'connection_code': connection_code
-    })
-
-
-@login_required
-def unlink_telegram(request):
-    """Отвязка Telegram аккаунта"""
-    if request.method == 'POST':
-        TelegramUser.objects.filter(user=request.user).delete()
-        messages.success(request, 'Telegram аккаунт отвязан')
-        return redirect('dashboard')
-
-    return render(request, 'telegram_bot/unlink.html')
-
-
-def bot_info(request):
-    """Информация о боте (для админов)"""
-    bot = TelegramBot()
-    info = bot.get_me()
-
-    return JsonResponse(info or {'error': 'Cannot get bot info'})
+# views.py
