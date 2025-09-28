@@ -47,9 +47,9 @@
 
 <div align="center">
   <img src="screenshots/dashboard.png" alt="Dashboard" width="45%"> <!-- Замените на путь к скриншоту -->
-  <img src="screenshots/review_mode.png" alt="Review Mode" width="45%"> <!-- Замените на путь к скриншоту -->
-  <img src="screenshots/add_word.png" alt="Add Word" width="45%"> <!-- Замените на путь к скриншоту -->
-  <img src="screenshots/telegram_integration.png" alt="Telegram Integration" width="45%"> <!-- Замените на путь к скриншоту -->
+  <img src="screenshots/z5.png" alt="Review Mode" width="45%"> <!-- Замените на путь к скриншоту -->
+  <img src="screenshots/z3.png" alt="Список слов" width="45%"> <!-- Замените на путь к скриншоту -->
+  <img src="screenshots/z4.png" alt="Карточка слова" width="45%"> <!-- Замените на путь к скриншоту --> 
 </div>
 
 ---
@@ -58,7 +58,7 @@
 
 <div align="center">
   <video width="80%" controls>
-    <source src="demo/demo_video.mp4" type="video/mp4"> <!-- Замените на путь к видео -->
+    <source src="screenshots/0928.mp4" type="video/mp4"> <!-- Замените на путь к видео -->
     Your browser does not support the video tag.
   </video>
   <p><em>Краткая демонстрация основного функционала и озвучки слов.</em></p>
@@ -146,7 +146,7 @@
 
 ## Авторы
 
-*   **[Ваше Имя / Имя пользователя GitHub]** - *Основной разработчик* - [Ваш GitHub профиль](https://github.com/your-username)
+*   **[Моякулова Екатерина / KaMoHub GitHub]** - *Основной разработчик* - [https://github.com/KaMoHub](https://github.com/KaMoHub)
 
 ---
 
