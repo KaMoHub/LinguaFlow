@@ -122,7 +122,7 @@
 ## Структура базы данных
 
 <div align="center">
-  <img src="db_schema/schema_diagram.png" alt="Database Schema" width="80%"> <!-- Замените на путь к PNG диаграмме -->
+  <img src="screenshots/str.png" alt="Database Schema" width="80%"> <!-- Замените на путь к PNG диаграмме -->
   <p><em>Схема связей между основными моделями.</em></p>
 </div>
 

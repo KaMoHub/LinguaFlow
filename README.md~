@@ -122,7 +122,7 @@
 ## Структура базы данных
 
 <div align="center">
-  <img src="db_schema/schema_diagram.png" alt="Database Schema" width="80%"> <!-- Замените на путь к PNG диаграмме -->
+  <img src="db_schema/str.png" alt="Database Schema" width="80%"> <!-- Замените на путь к PNG диаграмме -->
   <p><em>Схема связей между основными моделями.</em></p>
 </div>
 
@@ -146,7 +146,7 @@
 
 ## Авторы
 
-*   **[Моякулова Екатерина / KaMoHub GitHub]** - *Основной разработчик* - [Ваш GitHub профиль](https://github.com/your-username)
+*   **[Моякулова Екатерина / KaMoHub GitHub]** - *Основной разработчик* - [https://github.com/KaMoHub](https://github.com/KaMoHub)
 
 ---
 
